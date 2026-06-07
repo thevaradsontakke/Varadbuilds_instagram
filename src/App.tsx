@@ -38,12 +38,10 @@ export default function App() {
     return saved ? JSON.parse(saved) : generateMockAnalyticsEvents();
   });
 
-  // Support dynamic route modes: if URL has ?edit=true, ?admin=true, or ?creator=true, show Builder/Analytics dashboard.
+  // Support dynamic route modes: if URL is accessed via ?editaccess=Varad@210, unlock full admin/builder dashboard.
   // Otherwise, default to full screen, live standalone production public portfolio!
   const hasEditorQuery = typeof window !== 'undefined' && (
-    new URLSearchParams(window.location.search).has('edit') ||
-    new URLSearchParams(window.location.search).has('admin') ||
-    new URLSearchParams(window.location.search).has('creator')
+    new URLSearchParams(window.location.search).get('editaccess') === 'Varad@210'
   );
 
   // Navigation: Toggles between 'dashboard' (builder + metrics) and 'public' (standalone full-screen bio page)
