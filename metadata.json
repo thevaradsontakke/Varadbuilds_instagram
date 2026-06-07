@@ -1,0 +1,6 @@
+{
+  "name": "Linktree Portfolio & Analytics Builder",
+  "description": "A high-conversion Instagram portfolio and Linktree-style platform template for creators with built-in analytics to track click-through rates, custom brand themes, and smart links.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
