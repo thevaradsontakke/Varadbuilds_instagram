@@ -4,7 +4,7 @@ export const INITIAL_PROFILE: CreatorProfile = {
   username: 'varadbuilds',
   displayName: 'Varad Sontakke',
   bio: '🚀 Helping Students Build Skills & Earn Online 🎥 Content Creation | AI | Personal Branding 📈 Learn → Create → Grow → Monetize 🎓 Engineering Student Building in Public 👇 Free Resources & Community',
-  avatarUrl: 'https://unavatar.io/twitter/varad__210', // Automatically resolves Varad's high-quality professional Twitter avatar (yellow background portrait)
+  avatarUrl: 'https://res.cloudinary.com/dclr2ihxn/image/upload/v1780862074/ChatGPT_Image_May_28_2026_02_13_07_PM_bozy22.png', // Automatically resolves Varad's high-quality professional Twitter avatar (yellow background portrait)
   theme: 'yellow-onyx',
   socials: {
     instagram: 'https://instagram.com/varadbuilds',
