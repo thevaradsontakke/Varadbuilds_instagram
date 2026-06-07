@@ -24,17 +24,17 @@ import AnalyticsDashboard from './components/AnalyticsDashboard';
 export default function App() {
   // Load data from LocalStorage or seed defaults
   const [profile, setProfile] = useState<CreatorProfile>(() => {
-    const saved = localStorage.getItem('varadbuilds_profile');
+    const saved = localStorage.getItem('varadbuilds_profile_v5');
     return saved ? JSON.parse(saved) : INITIAL_PROFILE;
   });
 
   const [links, setLinks] = useState<LinkItem[]>(() => {
-    const saved = localStorage.getItem('varadbuilds_links');
+    const saved = localStorage.getItem('varadbuilds_links_v5');
     return saved ? JSON.parse(saved) : INITIAL_LINKS;
   });
 
   const [events, setEvents] = useState<AnalyticsEvent[]>(() => {
-    const saved = localStorage.getItem('varadbuilds_events');
+    const saved = localStorage.getItem('varadbuilds_events_v5');
     return saved ? JSON.parse(saved) : generateMockAnalyticsEvents();
   });
 
@@ -60,15 +60,15 @@ export default function App() {
 
   // Sync state changes with localStorage
   useEffect(() => {
-    localStorage.setItem('varadbuilds_profile', JSON.stringify(profile));
+    localStorage.setItem('varadbuilds_profile_v5', JSON.stringify(profile));
   }, [profile]);
 
   useEffect(() => {
-    localStorage.setItem('varadbuilds_links', JSON.stringify(links));
+    localStorage.setItem('varadbuilds_links_v5', JSON.stringify(links));
   }, [links]);
 
   useEffect(() => {
-    localStorage.setItem('varadbuilds_events', JSON.stringify(events));
+    localStorage.setItem('varadbuilds_events_v5', JSON.stringify(events));
   }, [events]);
 
   // Helper Toast trigger

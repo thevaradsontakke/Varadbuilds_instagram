@@ -4,16 +4,16 @@ export const INITIAL_PROFILE: CreatorProfile = {
   username: 'varadbuilds',
   displayName: 'Varad Sontakke',
   bio: '🚀 Helping Students Build Skills & Earn Online 🎥 Content Creation | AI | Personal Branding 📈 Learn → Create → Grow → Monetize 🎓 Engineering Student Building in Public 👇 Free Resources & Community',
-  avatarUrl: 'https://avatars.githubusercontent.com/u/96059837?v=4', // Real GitHub profile avatar for Varad Builds
+  avatarUrl: 'https://unavatar.io/twitter/varad__210', // Automatically resolves Varad's high-quality professional Twitter avatar (yellow background portrait)
   theme: 'yellow-onyx',
   socials: {
     instagram: 'https://instagram.com/varadbuilds',
-    youtube: 'https://youtube.com/@varadbuilds',
-    telegram: 'https://t.me/varadbuilds_hub',
-    whatsapp: 'https://wa.me/1234567890',
-    twitter: 'https://twitter.com/varadbuilds',
-    email: 'contact@varadbuilds.com',
-    github: 'https://github.com/varadbuilds',
+    youtube: 'https://youtube.com/@Varadpreneur210',
+    telegram: 'https://t.me/varadbuilds',
+    whatsapp: 'https://whatsapp.com/channel/0029VbDEEQcGufIupgv7X30A',
+    twitter: 'https://twitter.com/varad__210',
+    email: 'dijitalvarad@gmail.com',
+    github: 'https://github.com/varad-210',
   },
 };
 
@@ -21,7 +21,7 @@ export const INITIAL_LINKS: LinkItem[] = [
   {
     id: 'whatsapp-community',
     title: 'WhatsApp VIP Inner Circle Community',
-    url: 'https://chat.whatsapp.com/Gxyz12347910',
+    url: 'https://whatsapp.com/channel/0029VbDEEQcGufIupgv7X30A',
     description: 'Get immediate notifications, feedback on your hooks, and chat with 2,000+ scaling creators.',
     icon: 'whatsapp',
     badge: 'FREE ACCESS',
@@ -33,7 +33,7 @@ export const INITIAL_LINKS: LinkItem[] = [
   {
     id: 'yt-channel',
     title: 'Future is Unpredictable',
-    url: 'https://youtube.com/@varadbuilds',
+    url: 'https://youtu.be/Lf2NNIGdEkk?si=NOQhpj-wtaPinCtn',
     description: "The future is uncertain. Your preparation doesn't have to be.",
     icon: 'youtube',
     badge: 'NEW VIDEO',
@@ -45,7 +45,7 @@ export const INITIAL_LINKS: LinkItem[] = [
   {
     id: 'digital-product',
     title: 'THE STUDENT FREEDOM BLUEPRINT',
-    url: 'https://varadbuilds.gumroad.com/l/personal-branding',
+    url: 'https://drive.google.com/file/d/1S2ijI1Rpelsihj8gqP4TFup9TqbIWzPp/view?usp=sharing',
     description: 'Escape the Matrix. Build High Income Skills. Earn from Your Mobile.',
     icon: 'shopping-bag',
     badge: 'HOT SELLER',
@@ -53,6 +53,30 @@ export const INITIAL_LINKS: LinkItem[] = [
     views: 2450,
     active: true,
     order: 3,
+  },
+  {
+    id: 'digital-skill-blog',
+    title: 'Digital Skills Blog',
+    url: 'https://digitalvarad.vercel.app/',
+    description: 'Learn AI, Content Creation, Freelancing & Affiliate Marketing Through Practical Examples.',
+    icon: 'globe',
+    badge: 'MUST VISIT',
+    clicks: 1150,
+    views: 2100,
+    active: true,
+    order: 4,
+  },
+  {
+    id: 'telegram-channel',
+    title: 'Telegram Digital Growth Club',
+    url: 'https://t.me/varadbuilds',
+    description: 'Download FREE Canva templates, Notion brand setups, and video hook PDF guides.',
+    icon: 'telegram',
+    badge: 'RECOMMENDED',
+    clicks: 860,
+    views: 1800,
+    active: true,
+    order: 5,
   },
 ];
 
