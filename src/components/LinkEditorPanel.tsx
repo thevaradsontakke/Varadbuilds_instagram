@@ -23,6 +23,7 @@ import {
   Image as ImageIcon,
   Save,
   Check,
+  Github,
 } from 'lucide-react';
 import { LinkItem, CreatorProfile, ThemeType } from '../types';
 
@@ -966,6 +967,21 @@ export default function LinkEditorPanel({
                 placeholder="https://x.com/yourhandle"
                 value={profile.socials.twitter || ''}
                 onChange={(e) => handleSocialFieldChange('twitter', e.target.value)}
+                className="w-full px-3 py-2 bg-[#0A0A0A] border border-zinc-850 rounded-lg text-xs text-stone-200 outline-none focus:border-yellow-400 font-mono"
+              />
+            </div>
+
+            {/* GitHub */}
+            <div>
+              <label className="text-xs text-stone-300 font-sans font-semibold flex items-center gap-1.5 mb-1.5">
+                <Github className="w-3.5 h-3.5 text-white" />
+                GitHub Profile URL
+              </label>
+              <input
+                type="url"
+                placeholder="https://github.com/yourusername"
+                value={profile.socials.github || ''}
+                onChange={(e) => handleSocialFieldChange('github', e.target.value)}
                 className="w-full px-3 py-2 bg-[#0A0A0A] border border-zinc-850 rounded-lg text-xs text-stone-200 outline-none focus:border-yellow-400 font-mono"
               />
             </div>

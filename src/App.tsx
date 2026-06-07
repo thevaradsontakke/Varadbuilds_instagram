@@ -514,12 +514,12 @@ export default function App() {
       </AnimatePresence>
 
       {/* 4. FOOTER */}
-      <footer className="py-8 bg-black mt-12 border-t border-zinc-950 text-center text-stone-600 text-xs font-mono">
-        <p className="uppercase tracking-widest">
-          ✨ Varad Builds Personal Brand Showcase Engine
+      <footer className="py-8 bg-black mt-12 border-t border-zinc-950 text-center text-stone-500 text-xs font-mono">
+        <p className="font-extrabold text-stone-400">
+          ⚡ Powered by @varadbuilds
         </p>
-        <p className="text-[10px] text-stone-700 mt-1 uppercase">
-          Build. Seen. Trusted. Earn Limitless.
+        <p className="text-[10px] text-stone-600 mt-1 uppercase tracking-wider">
+          Minimalist Instagram Brand Engine
         </p>
       </footer>
     </div>

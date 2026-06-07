@@ -26,6 +26,7 @@ export interface CreatorProfile {
     whatsapp?: string;
     twitter?: string;
     email?: string;
+    github?: string;
   };
 }
 

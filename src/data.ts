@@ -13,6 +13,7 @@ export const INITIAL_PROFILE: CreatorProfile = {
     whatsapp: 'https://wa.me/1234567890',
     twitter: 'https://twitter.com/varadbuilds',
     email: 'contact@varadbuilds.com',
+    github: 'https://github.com/varadbuilds',
   },
 };
 

@@ -13,6 +13,7 @@ import {
   Mail,
   CheckCircle2,
   Lock,
+  Github,
 } from 'lucide-react';
 import { LinkItem, CreatorProfile, ThemeType } from '../types';
 import { THEME_PRESETS, ThemeConfig } from './ThemeStyles';
@@ -177,6 +178,18 @@ export default function LinkTreePreview({
             title="Twitter"
           >
             <Twitter className="w-5 h-5" />
+          </button>
+        )}
+        {profile.socials.github && (
+          <button
+            onClick={() => {
+              onTriggerLinkClick('github-profile');
+              window.open(profile.socials.github, '_blank', 'noopener,noreferrer');
+            }}
+            className="p-2 mr-0.5 rounded-full hover:bg-yellow-400 hover:text-black transition duration-200 cursor-pointer text-stone-300 hover:scale-110"
+            title="GitHub"
+          >
+            <Github className="w-5 h-5" />
           </button>
         )}
         {profile.socials.email && (
