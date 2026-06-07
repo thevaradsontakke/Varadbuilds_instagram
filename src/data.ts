@@ -2,9 +2,9 @@ import { LinkItem, CreatorProfile, AnalyticsEvent } from './types';
 
 export const INITIAL_PROFILE: CreatorProfile = {
   username: 'varadbuilds',
-  displayName: 'Varad Builds',
-  bio: 'Personal Brand Architect. Helping creators & startups build high-value presence, dominate socials, and monetize expertise.',
-  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200', // Crisp professional fallback, can be customized
+  displayName: 'Varad Sontakke',
+  bio: '🚀 Helping Students Build Skills & Earn Online 🎥 Content Creation | AI | Personal Branding 📈 Learn → Create → Grow → Monetize 🎓 Engineering Student Building in Public 👇 Free Resources & Community',
+  avatarUrl: 'https://avatars.githubusercontent.com/u/96059837?v=4', // Real GitHub profile avatar for Varad Builds
   theme: 'yellow-onyx',
   socials: {
     instagram: 'https://instagram.com/varadbuilds',
@@ -19,30 +19,6 @@ export const INITIAL_PROFILE: CreatorProfile = {
 
 export const INITIAL_LINKS: LinkItem[] = [
   {
-    id: 'yt-channel',
-    title: 'Subscribe to YouTube Channel',
-    url: 'https://youtube.com/@varadbuilds',
-    description: 'Weekly tutorials on content schedules, editing frameworks, and personal branding audits.',
-    icon: 'youtube',
-    badge: 'NEW VIDEO',
-    clicks: 1420,
-    views: 3100,
-    active: true,
-    order: 1,
-  },
-  {
-    id: 'digital-product',
-    title: 'Personal Branding Mastery E-Book',
-    url: 'https://varadbuilds.gumroad.com/l/personal-branding',
-    description: 'The step-by-step blueprint to turn your online presence into a customer-generating asset. (50% OFF)',
-    icon: 'shopping-bag',
-    badge: 'HOT SELLER',
-    clicks: 980,
-    views: 2450,
-    active: true,
-    order: 2,
-  },
-  {
     id: 'whatsapp-community',
     title: 'WhatsApp VIP Inner Circle Community',
     url: 'https://chat.whatsapp.com/Gxyz12347910',
@@ -52,19 +28,31 @@ export const INITIAL_LINKS: LinkItem[] = [
     clicks: 1845,
     views: 3600,
     active: true,
-    order: 3,
+    order: 1,
   },
   {
-    id: 'telegram-channel',
-    title: 'Telegram High-Performance Resource Hub',
-    url: 'https://t.me/varadbuilds_resources',
-    description: 'Download FREE Canva templates, Notion brand setups, and video hook PDF guides.',
-    icon: 'telegram',
-    badge: 'RECOMMENDED',
-    clicks: 1150,
-    views: 2100,
+    id: 'yt-channel',
+    title: 'Future is Unpredictable',
+    url: 'https://youtube.com/@varadbuilds',
+    description: "The future is uncertain. Your preparation doesn't have to be.",
+    icon: 'youtube',
+    badge: 'NEW VIDEO',
+    clicks: 1420,
+    views: 3100,
     active: true,
-    order: 4,
+    order: 2,
+  },
+  {
+    id: 'digital-product',
+    title: 'THE STUDENT FREEDOM BLUEPRINT',
+    url: 'https://varadbuilds.gumroad.com/l/personal-branding',
+    description: 'Escape the Matrix. Build High Income Skills. Earn from Your Mobile.',
+    icon: 'shopping-bag',
+    badge: 'HOT SELLER',
+    clicks: 980,
+    views: 2450,
+    active: true,
+    order: 3,
   },
 ];
 

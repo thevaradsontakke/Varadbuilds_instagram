@@ -22,7 +22,7 @@ import LinkEditorPanel from './components/LinkEditorPanel';
 import AnalyticsDashboard from './components/AnalyticsDashboard';
 
 export default function App() {
-  // Load data from LocalStorage or seed defaults as a fast startup frame
+  // Load data from LocalStorage or seed defaults
   const [profile, setProfile] = useState<CreatorProfile>(() => {
     const saved = localStorage.getItem('varadbuilds_profile');
     return saved ? JSON.parse(saved) : INITIAL_PROFILE;
@@ -37,29 +37,6 @@ export default function App() {
     const saved = localStorage.getItem('varadbuilds_events');
     return saved ? JSON.parse(saved) : generateMockAnalyticsEvents();
   });
-
-  // Track initial API fetch loaded status to prevent early debounced saving before load completes
-  const [isServerLoaded, setIsServerLoaded] = useState(false);
-
-  // Fetch real-time centralized portfolio database from Express backend on mount
-  useEffect(() => {
-    const fetchServerData = async () => {
-      try {
-        const res = await fetch('/api/data');
-        if (res.ok) {
-          const serverDb = await res.json();
-          if (serverDb.profile) setProfile(serverDb.profile);
-          if (serverDb.links) setLinks(serverDb.links);
-          if (serverDb.events) setEvents(serverDb.events);
-        }
-      } catch (err) {
-        console.warn('Portfolio server database offline or unreachable. Using cache fallback.', err);
-      } finally {
-        setIsServerLoaded(true);
-      }
-    };
-    fetchServerData();
-  }, []);
 
   // Support dynamic route modes: if URL is accessed via ?editaccess=Varad@210, unlock full admin/builder dashboard.
   // Otherwise, default to full screen, live standalone production public portfolio!
@@ -81,7 +58,7 @@ export default function App() {
   // Event Toast feedback notifications on link tracking clicks
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Sync state changes with local device cache
+  // Sync state changes with localStorage
   useEffect(() => {
     localStorage.setItem('varadbuilds_profile', JSON.stringify(profile));
   }, [profile]);
@@ -94,28 +71,12 @@ export default function App() {
     localStorage.setItem('varadbuilds_events', JSON.stringify(events));
   }, [events]);
 
-  // Debounced live save to server (prevents hammer on rapid user typed input)
-  useEffect(() => {
-    if (!isServerLoaded) return; // avoid saving before load completes
-    if (!profile.username || links.length === 0) return;
-
-    const delayDebounce = setTimeout(async () => {
-      try {
-        await fetch('/api/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profile, links }),
-        });
-      } catch (err) {
-        console.error('Failed to sync changes with backend database', err);
-      }
-    }, 1000);
-
-    return () => clearTimeout(delayDebounce);
-  }, [profile, links, isServerLoaded]);
-
   // Helper Toast trigger
   const showToast = (msg: string) => {
+    // Under public portfolio mode, keep the user interface fully clean with no tracking popups
+    if (viewMode === 'public') {
+      return;
+    }
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
@@ -176,13 +137,6 @@ export default function App() {
     };
 
     setEvents((prev) => [newEv, ...prev]);
-
-    // Send single tracking event to server
-    fetch('/api/event', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event: newEv }),
-    }).catch((err) => console.error('Failed to log server click event', err));
 
     // Lookup legible button label to display in tracking alert toasts
     let displayName = 'Social Handle Icon';
@@ -251,25 +205,18 @@ export default function App() {
     }
 
     // Apply incremental results back to link counters
-    const updatedLinks = links.map((l) => {
-      const ad = clickMapToIncrement[l.id] || 0;
-      return {
-        ...l,
-        clicks: l.clicks + ad,
-        views: l.views + Math.floor(addedCount * 1.2), // general exposure proxy
-      };
-    });
+    setLinks((prev) =>
+      prev.map((l) => {
+        const ad = clickMapToIncrement[l.id] || 0;
+        return {
+          ...l,
+          clicks: l.clicks + ad,
+          views: l.views + Math.floor(addedCount * 1.2), // general exposure proxy
+        };
+      })
+    );
 
-    setLinks(updatedLinks);
     setEvents((prev) => [...newSimulatedEvents, ...prev]);
-
-    // Send batch to server
-    fetch('/api/simulate-traffic', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ simulatedEvents: newSimulatedEvents, updatedLinks }),
-    }).catch((err) => console.error('Failed to sync traffic batch', err));
-
     showToast(`🚀 Inflow simulator active: Simulated +${addedCount} views & links clicks across the past 7 days.`);
   };
 
@@ -284,11 +231,6 @@ export default function App() {
         views: 0,
       }))
     );
-
-    // Call server to reset analytics
-    fetch('/api/reset-analytics', { method: 'POST' })
-      .catch((err) => console.error('Failed to clean backend database', err));
-
     showToast('🧹 Analytics metrics database reset to raw empty state.');
   };
 
@@ -576,14 +518,16 @@ export default function App() {
       </AnimatePresence>
 
       {/* 4. FOOTER */}
-      <footer className="py-8 bg-black mt-12 border-t border-zinc-950 text-center text-stone-500 text-xs font-mono">
-        <p className="font-extrabold text-stone-400">
-          ⚡ Powered by @varadbuilds
-        </p>
-        <p className="text-[10px] text-stone-600 mt-1 uppercase tracking-wider">
-          Minimalist Instagram Brand Engine
-        </p>
-      </footer>
+      {viewMode === 'dashboard' && (
+        <footer className="py-8 bg-black mt-12 border-t border-zinc-950 text-center text-stone-500 text-xs font-mono font-sans">
+          <p className="font-extrabold text-stone-400">
+            ⚡ Powered by @varadbuilds
+          </p>
+          <p className="text-[10px] text-stone-600 mt-1 uppercase tracking-wider">
+            Minimalist Instagram Brand Engine
+          </p>
+        </footer>
+      )}
     </div>
   );
 }
