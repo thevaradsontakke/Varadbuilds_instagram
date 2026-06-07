@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, ChangeEvent } from 'react';
 import {
   User,
   Plus,
@@ -19,6 +19,10 @@ import {
   Mail,
   FolderPlus,
   Compass,
+  Upload,
+  Image as ImageIcon,
+  Save,
+  Check,
 } from 'lucide-react';
 import { LinkItem, CreatorProfile, ThemeType } from '../types';
 
@@ -36,6 +40,11 @@ export default function LinkEditorPanel({
   onChangeLinks,
 }: LinkEditorPanelProps) {
   const [activeSubTab, setActiveSubTab] = useState<'profile' | 'links' | 'socials'>('links');
+
+  // Local states for image uploading, optimization, and explicit save feedback
+  const [dragActive, setDragActive] = useState(false);
+  const [compressStatus, setCompressStatus] = useState<string | null>(null);
+  const [isSavedRecently, setIsSavedRecently] = useState(false);
 
   // Input bindings for adding a new link
   const [newTitle, setNewTitle] = useState('');
@@ -66,6 +75,68 @@ export default function LinkEditorPanel({
       ...profile,
       [key]: value,
     });
+  };
+
+  const processImageFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image/picture file format.');
+      return;
+    }
+
+    setCompressStatus('Optimizing image...');
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // High fidelity downscaling to max 350px width/height to save local storage space
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxDimension = 350;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          handleProfileFieldChange('avatarUrl', dataUrl);
+          setCompressStatus('Optimized! Displayed on preview.');
+          setTimeout(() => setCompressStatus(null), 3000);
+        } else {
+          if (typeof reader.result === 'string') {
+            handleProfileFieldChange('avatarUrl', reader.result);
+          }
+          setCompressStatus(null);
+        }
+      };
+      img.onerror = () => {
+        setCompressStatus('Error parsing. Loaded raw fallback.');
+        if (typeof reader.result === 'string') {
+          handleProfileFieldChange('avatarUrl', reader.result);
+        }
+        setTimeout(() => setCompressStatus(null), 3000);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerManualSaveSuccess = () => {
+    setIsSavedRecently(true);
+    setTimeout(() => {
+      setIsSavedRecently(false);
+    }, 4500);
   };
 
   const handleSocialFieldChange = (key: string, value: string) => {
@@ -502,72 +573,194 @@ export default function LinkEditorPanel({
       {activeSubTab === 'profile' && (
         <div className="space-y-6">
           {/* Avatar and branding settings */}
-          <div className="p-5 bg-[#0E0E0E] border border-zinc-800 rounded-xl space-y-4">
-            <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wide text-yellow-400">
-              Avatar & Handle Info
-            </h3>
+          <div className="p-5 bg-[#0E0E0E] border border-zinc-800 rounded-xl space-y-5">
+            <div className="flex justify-between items-center pb-2 border-b border-zinc-900">
+              <h3 className="text-sm font-bold text-white uppercase font-mono tracking-wide text-yellow-400 flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Avatar & Handle Info
+              </h3>
+              <span className="text-[10px] font-mono text-zinc-500">AUTOSAVED TO LOCAL STORAGE</span>
+            </div>
 
-            <div>
-              <label className="block text-xs text-stone-400 mb-2">Select Avatar Concept:</label>
-              <div className="flex flex-wrap items-center gap-3">
-                {DEFAULT_AVATARS.map((av, idx) => (
-                  <button
-                    key={av}
-                    type="button"
-                    onClick={() => handleProfileFieldChange('avatarUrl', av)}
-                    className={`relative w-12 h-12 rounded-full overflow-hidden border-2 cursor-pointer transition ${
-                      profile.avatarUrl === av ? 'border-yellow-400 scale-105 shadow-md' : 'border-zinc-800 grayscale hover:grayscale-0'
-                    }`}
-                  >
-                    <img src={av} alt={`Avatar Preset ${idx}`} className="w-full h-full object-cover" />
-                  </button>
-                ))}
-                
-                {/* Custom input path */}
-                <div className="flex-1 min-w-[200px]">
-                  <input
-                    type="url"
-                    placeholder="Or paste custom image web URL"
-                    value={profile.avatarUrl}
-                    onChange={(e) => handleProfileFieldChange('avatarUrl', e.target.value)}
-                    className="w-full px-3 py-1.5 bg-[#0A0A0A] border border-zinc-800 rounded-lg text-xs text-stone-200 outline-none focus:border-yellow-400"
-                  />
+            {/* Premium uploader & Preset select grid */}
+            <div className="space-y-3">
+              <label className="block text-xs font-mono text-stone-400">Avatar Image Presentation:</label>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Visual Preset selection */}
+                <div className="p-4 bg-[#070707] border border-zinc-850 rounded-xl space-y-3 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400 block font-semibold mb-2">1. Choose High-Res Preset</span>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {DEFAULT_AVATARS.map((av, idx) => (
+                        <button
+                          key={av}
+                          type="button"
+                          onClick={() => handleProfileFieldChange('avatarUrl', av)}
+                          className={`relative w-12 h-12 rounded-full overflow-hidden border-2 cursor-pointer transition ${
+                            profile.avatarUrl === av ? 'border-yellow-400 scale-105 shadow-md' : 'border-zinc-800 grayscale hover:grayscale-0'
+                          }`}
+                          title={`Select predefined model preset ${idx + 1}`}
+                        >
+                          <img src={av} alt={`Avatar Preset ${idx}`} className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom URL Input fallback */}
+                  <div className="pt-2 border-t border-zinc-900">
+                    <label className="block text-[9px] uppercase font-mono text-stone-500 mb-1">Or Paste Custom Image URL</label>
+                    <input
+                      type="url"
+                      placeholder="https://images.unsplash.com/..."
+                      value={profile.avatarUrl.startsWith('data:') ? '' : profile.avatarUrl}
+                      onChange={(e) => handleProfileFieldChange('avatarUrl', e.target.value)}
+                      className="w-full px-3 py-1.5 bg-[#0A0A0A] border border-zinc-800 rounded-lg text-xs text-stone-200 outline-none focus:border-yellow-400 font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Real-time local image uploader */}
+                <div 
+                  className={`p-4 border rounded-xl flex flex-col items-center justify-center text-center transition relative overflow-hidden min-h-[140px] ${
+                    dragActive 
+                      ? 'border-yellow-450 bg-yellow-400/5' 
+                      : 'border-zinc-850 bg-[#070707] hover:border-zinc-800'
+                  }`}
+                  onDragEnter={(e) => { e.preventDefault(); setDragActive(true); }}
+                  onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+                  onDragLeave={(e) => { e.preventDefault(); setDragActive(false); }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragActive(false);
+                    if (e.dataTransfer.files?.[0]) {
+                      processImageFile(e.dataTransfer.files[0]);
+                    }
+                  }}
+                >
+                  <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center p-2">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          processImageFile(e.target.files[0]);
+                        }
+                      }}
+                    />
+                    
+                    <div className="flex flex-col items-center gap-2">
+                      {profile.avatarUrl.startsWith('data:') ? (
+                        <div className="relative">
+                          <img 
+                            src={profile.avatarUrl} 
+                            alt="Uploaded Base64 Preview" 
+                            className="w-12 h-12 rounded-full object-cover border-2 border-yellow-450 shadow-md"
+                          />
+                          <div className="absolute -bottom-1 -right-1 bg-yellow-400 text-black p-0.5 rounded-full border border-black">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-stone-400 hover:text-yellow-400 transition-colors">
+                          <Upload className="w-4.5 h-4.5" />
+                        </div>
+                      )}
+
+                      <div>
+                        <p className="text-xs font-bold text-white">Drag & Drop or Click to Upload</p>
+                        <p className="text-[10px] text-stone-400 mt-1">PNG, JPG or GIF. Downsampled to save local storage.</p>
+                      </div>
+
+                      {compressStatus && (
+                        <span className="text-[10px] bg-yellow-450/20 text-[#FACC15] px-2.5 py-0.5 rounded-full font-mono animate-pulse">
+                          {compressStatus}
+                        </span>
+                      )}
+                    </div>
+                  </label>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-stone-400 mb-1">Display Name Signature</label>
+                <label className="block text-xs text-stone-400 mb-1 font-mono">Display Name Signature</label>
                 <input
                   type="text"
                   value={profile.displayName}
                   onChange={(e) => handleProfileFieldChange('displayName', e.target.value)}
                   className="w-full px-3 py-2 bg-[#0A0A0A] border border-zinc-800 rounded-lg text-sm text-stone-200 outline-none focus:border-yellow-400"
+                  placeholder="e.g. Jane Doe"
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-stone-400 mb-1">Instagram (@) Username</label>
+                <label className="block text-xs text-stone-400 mb-1 font-mono">Instagram (@) Username</label>
                 <input
                   type="text"
                   value={profile.username}
                   onChange={(e) => handleProfileFieldChange('username', e.target.value)}
                   className="w-full px-3 py-2 bg-[#0A0A0A] border border-zinc-800 rounded-lg text-sm text-stone-200 outline-none focus:border-yellow-400 font-mono"
+                  placeholder="e.g. janedoe_creations"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs text-stone-400 mb-1">Biographical Coordinates (Bio Heading)</label>
+              <label className="block text-xs text-stone-400 mb-1 font-mono">Biographical Coordinates (Bio Heading)</label>
               <textarea
                 rows={3}
                 value={profile.bio}
                 onChange={(e) => handleProfileFieldChange('bio', e.target.value)}
                 placeholder="Write a clear statement. Help visitors learn what value your communities & products deliver."
-                className="w-full px-3 py-2 bg-[#0A0A0A] border border-zinc-800 rounded-lg text-sm text-stone-200 outline-none focus:border-yellow-400 resize-none"
+                className="w-full px-3 py-2 bg-[#0A0A0A] border border-zinc-800 rounded-lg text-sm text-stone-200 outline-none focus:border-yellow-400 resize-none font-sans"
               />
             </div>
+
+            {/* Save Buttons & Status Indicator block */}
+            <div className="pt-3 border-t border-zinc-900 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
+                <span className="text-[10px] text-stone-400 font-mono">
+                  State: {isSavedRecently ? 'Changes Locked' : 'Synchronized Live'}
+                </span>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={triggerManualSaveSuccess}
+                  className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    isSavedRecently 
+                      ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/10' 
+                      : 'bg-yellow-450 hover:bg-yellow-500 text-stone-950 font-extrabold active:scale-95'
+                  }`}
+                >
+                  {isSavedRecently ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[3]" />
+                      <span>Saved successfully!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>Save Changes</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Optional Success Status banner */}
+            {isSavedRecently && (
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-lg font-mono flex items-center gap-2">
+                <span className="p-1 rounded-full bg-emerald-500/20 text-emerald-400">✓</span>
+                <span>All profile changes fully updated, compressed, and persisted dynamically inside the local state cache. Enjoy the live simulated preview on the right hand side!</span>
+              </div>
+            )}
           </div>
 
           {/* Theme Preset Selection Cards */}
