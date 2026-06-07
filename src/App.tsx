@@ -38,8 +38,18 @@ export default function App() {
     return saved ? JSON.parse(saved) : generateMockAnalyticsEvents();
   });
 
+  // Support dynamic route modes: if URL has ?edit=true, ?admin=true, or ?creator=true, show Builder/Analytics dashboard.
+  // Otherwise, default to full screen, live standalone production public portfolio!
+  const hasEditorQuery = typeof window !== 'undefined' && (
+    new URLSearchParams(window.location.search).has('edit') ||
+    new URLSearchParams(window.location.search).has('admin') ||
+    new URLSearchParams(window.location.search).has('creator')
+  );
+
   // Navigation: Toggles between 'dashboard' (builder + metrics) and 'public' (standalone full-screen bio page)
-  const [viewMode, setViewMode] = useState<'dashboard' | 'public'>('dashboard');
+  const [viewMode, setViewMode] = useState<'dashboard' | 'public'>(() => {
+    return hasEditorQuery ? 'dashboard' : 'public';
+  });
 
   // Multi-tab controls on the left side of the dashboard: 'editor' or 'analytics'
   const [dashboardTab, setDashboardTab] = useState<'editor' | 'analytics'>('editor');
@@ -225,75 +235,80 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#070707] text-white flex flex-col font-sans relative selection:bg-yellow-400 selection:text-black antialiased">
       
-      {/* 1. BRAND NAVIGATION HEADER NAVBAR */}
-      <header className="sticky top-0 z-50 bg-[#0A0A0A] border-b border-zinc-900/80 px-4 sm:px-6 py-3.5 flex justify-between items-center backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-yellow-400 flex items-center justify-center font-black text-black text-base shadow-[0_0_12px_rgba(250,204,21,0.25)] select-none">
-            vB
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 leading-none">
-              <span className="font-extrabold text-white text-sm tracking-tight font-sans uppercase">
-                {profile.username || 'creator'}
-              </span>
-              <span className="text-[10px] font-bold bg-yellow-400/10 text-[#FACC15] uppercase px-1.5 py-0.5 rounded font-mono">
-                Brand Core
-              </span>
+      {/* 1. BRAND NAVIGATION HEADER NAVBAR - Visible only if editing is unlocked */}
+      {hasEditorQuery && (
+        <header className="sticky top-0 z-50 bg-[#0A0A0A] border-b border-zinc-900/80 px-4 sm:px-6 py-3.5 flex justify-between items-center backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-yellow-400 flex items-center justify-center font-black text-black text-base shadow-[0_0_12px_rgba(250,204,21,0.25)] select-none">
+              vB
             </div>
-            <p className="text-[10px] text-zinc-500 font-mono mt-0.5">
-              White + Yellow + Black Portfolio Engine
-            </p>
+            <div>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span className="font-extrabold text-white text-sm tracking-tight font-sans uppercase">
+                  {profile.username || 'creator'}
+                </span>
+                <span className="text-[10px] font-bold bg-yellow-400/10 text-[#FACC15] uppercase px-1.5 py-0.5 rounded font-mono">
+                  Brand Core
+                </span>
+              </div>
+              <p className="text-[10px] text-zinc-500 font-mono mt-0.5">
+                White + Yellow + Black Portfolio Engine
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Global Nav Mode selector */}
-        <div className="flex items-center gap-3">
-          {/* Quick Theme Swapper Button */}
-          <button
-            onClick={cycleTheme}
-            className="flex items-center gap-2 px-3 py-2 bg-stone-950 hover:bg-stone-900 active:scale-95 text-yellow-400 border border-zinc-800 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer"
-            title="Rotate to Next Theme"
-          >
-            <Palette className="w-4 h-4 text-yellow-400" />
-            <span className="hidden md:inline">Quick Switch Theme</span>
-            {/* Show badge of current theme label */}
-            <span className="text-[9px] bg-yellow-400/10 text-[#FACC15] uppercase px-1.5 py-0.5 rounded font-mono font-bold max-w-[90px] truncate hidden sm:inline">
-              {profile.theme.replace('-', ' ')}
-            </span>
-          </button>
+          {/* Global Nav Mode selector */}
+          <div className="flex items-center gap-3">
+            {/* Quick Theme Swapper Button */}
+            <button
+              onClick={cycleTheme}
+              className="flex items-center gap-2 px-3 py-2 bg-stone-950 hover:bg-stone-900 active:scale-95 text-yellow-400 border border-zinc-800 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer"
+              title="Rotate to Next Theme"
+            >
+              <Palette className="w-4 h-4 text-yellow-400" />
+              <span className="hidden md:inline">Quick Switch Theme</span>
+              {/* Show badge of current theme label */}
+              <span className="text-[9px] bg-yellow-400/10 text-[#FACC15] uppercase px-1.5 py-0.5 rounded font-mono font-bold max-w-[90px] truncate hidden sm:inline">
+                {profile.theme.replace('-', ' ')}
+              </span>
+            </button>
 
-          <div className="bg-stone-950 p-1 rounded-xl border border-zinc-800 flex gap-1">
-            <button
-              onClick={() => setViewMode('dashboard')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                viewMode === 'dashboard'
-                  ? 'bg-yellow-400 text-black'
-                  : 'text-stone-400 hover:text-white'
-              }`}
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Creator Workspace</span>
-            </button>
-            <button
-              onClick={() => {
-                setViewMode('public');
-                showToast('🔑 Rendering Public Bio linktree view. Fits any mobile browser beautifully.');
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                viewMode === 'public'
-                  ? 'bg-yellow-400 text-black shadow-sm'
-                  : 'text-stone-400 hover:text-white'
-              }`}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>Preview Public Portfolio</span>
-            </button>
+            <div className="bg-stone-950 p-1 rounded-xl border border-zinc-800 flex gap-1">
+              <button
+                onClick={() => setViewMode('dashboard')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === 'dashboard'
+                    ? 'bg-yellow-400 text-black'
+                    : 'text-stone-400 hover:text-white'
+                }`}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Creator Workspace</span>
+              </button>
+              <button
+                onClick={() => {
+                  setViewMode('public');
+                  showToast('🔑 Rendering Public Bio linktree view. Fits any mobile browser beautifully.');
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === 'public'
+                    ? 'bg-yellow-400 text-black shadow-sm'
+                    : 'text-stone-400 hover:text-white'
+                }`}
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Preview Public Portfolio</span>
+              </button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* 2. MAIN APPLICATION CONTENT PORT */}
-      <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col relative">
+      <main className={viewMode === 'public' && !hasEditorQuery
+        ? "flex-1 w-full flex flex-col relative"
+        : "flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col relative"
+      }>
         <AnimatePresence mode="wait">
           {viewMode === 'public' ? (
             /* FULL SCREEN PUBLIC USER BIO PORTAL */
@@ -303,20 +318,25 @@ export default function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="flex-1 flex flex-col items-center justify-center py-6"
+              className={hasEditorQuery 
+                ? "flex-1 flex flex-col items-center justify-center py-6"
+                : "flex-1 flex flex-col w-full"
+              }
             >
-              <div className="mb-6 flex items-center justify-between w-full max-w-md bg-stone-900 border border-zinc-850 px-4 py-2.5 rounded-xl">
-                <span className="text-xs font-mono text-stone-300 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                  Live Mobile Simulator View
-                </span>
-                <button
-                  onClick={() => setViewMode('dashboard')}
-                  className="text-xs text-yellow-400 underline font-semibold flex items-center gap-1 cursor-pointer"
-                >
-                  Return to Dashboard
-                </button>
-              </div>
+              {hasEditorQuery && (
+                <div className="mb-6 flex items-center justify-between w-full max-w-md bg-stone-900 border border-zinc-850 px-4 py-2.5 rounded-xl animate-pulse">
+                  <span className="text-xs font-mono text-stone-300 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    Live Mobile Simulator View
+                  </span>
+                  <button
+                    onClick={() => setViewMode('dashboard')}
+                    className="text-xs text-yellow-400 underline font-semibold flex items-center gap-1 cursor-pointer"
+                  >
+                    Return to Dashboard
+                  </button>
+                </div>
+              )}
 
               {/* Renders the full screen responsive Bio Linktree Page */}
               <LinkTreePreview
